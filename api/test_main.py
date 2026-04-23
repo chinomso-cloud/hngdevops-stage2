@@ -23,3 +23,5 @@ def test_get_job_invalid():
     response = client.get("/jobs/invalid-id")
     assert response.status_code == 200
     assert "error" in response.json()
+
+    
