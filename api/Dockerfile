@@ -3,7 +3,7 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# DL3042: Avoid use of cache directory with pip
+# DL3042: Fixed with --no-cache-dir
 COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
@@ -13,8 +13,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# DL3008: Pinned to your environment's candidate version
-# DL3015: Avoid additional packages by specifying --no-install-recommends
+# DL3008: Pinned to Candidate 8.14.1-2+deb13u2
+# DL3015: Added --no-install-recommends
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl=8.14.1-2+deb13u2 && \
@@ -43,4 +43,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
   CMD curl --fail http://localhost:8000/health || exit 1
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"
