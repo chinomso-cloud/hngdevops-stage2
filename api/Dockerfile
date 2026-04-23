@@ -3,7 +3,7 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# DL3042: Fixed by adding --no-cache-dir
+# DL3042: Avoid use of cache directory with pip
 COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
@@ -13,11 +13,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# DL3008 & DL3015: Fixed by pinning version and adding --no-install-recommends
-# Using the specific Debian 12 security release version for curl
+# DL3008: Pinned to your environment's candidate version
+# DL3015: Avoid additional packages by specifying --no-install-recommends
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    curl=7.88.1-10+deb12u8 && \
+    curl=8.14.1-2+deb13u2 && \
     rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
