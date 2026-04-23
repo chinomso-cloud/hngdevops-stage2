@@ -3,7 +3,8 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Install dependencies (NO CACHE)
+# DL3042: Avoid use of cache directory with pip. 
+# Added --no-cache-dir
 COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
@@ -13,9 +14,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install curl for healthcheck (PINNED + CLEAN)
+# DL3008: Pin versions in apt-get install.
+# DL3015: Avoid additional packages by specifying --no-install-recommends
+# Note: Version 7.88.1-10+deb12u8 is standard for Debian 12 (Bookworm)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl=7.88.1-10 && \
+    apt-get install -y --no-install-recommends \
+    curl=7.88.1-10+deb12u8 && \
     rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
