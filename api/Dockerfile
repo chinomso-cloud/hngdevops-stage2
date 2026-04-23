@@ -3,8 +3,7 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# DL3042: Avoid use of cache directory with pip. 
-# Added --no-cache-dir
+# DL3042: Fixed by adding --no-cache-dir
 COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
@@ -14,9 +13,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# DL3008: Pin versions in apt-get install.
-# DL3015: Avoid additional packages by specifying --no-install-recommends
-# Note: Version 7.88.1-10+deb12u8 is standard for Debian 12 (Bookworm)
+# DL3008 & DL3015: Fixed by pinning version and adding --no-install-recommends
+# Using the specific Debian 12 security release version for curl
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl=7.88.1-10+deb12u8 && \
