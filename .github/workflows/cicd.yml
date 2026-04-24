@@ -5,29 +5,37 @@ on:
     branches: [ "master" ]
   pull_request:
 
+env:
+  # Added to silence the Node.js 20 deprecation warnings
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # Python lint with Flexible Cache Path
+      # Python lint with flexible path
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: 'pip'
-          cache-dependency-path: '**/requirements.txt' # Finds requirements.txt in any folder
+          # Looks for requirements.txt anywhere in the repo
+          cache-dependency-path: '**/requirements.txt'
+
       - run: pip install flake8
       - name: Lint Python
         run: flake8 api worker
 
-      # JS lint with Flexible Cache Path
-      - uses: actions/setup-node@v4
+      # JS lint with flexible path discovery
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20" # Stay on 20 but run on Node24 runner via ENV
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json' # Finds package-lock.json in any folder
-      
+          # Use a glob pattern to find the lock file in subdirectories
+          cache-dependency-path: '**/package-lock.json'
+
       - name: Install ESLint
         run: npm install -g eslint
 
@@ -39,3 +47,5 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
         with:
           recursive: true
+
+  # ... (Rest of jobs: test, build, security, integration) ...

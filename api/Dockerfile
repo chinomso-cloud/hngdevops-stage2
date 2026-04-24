@@ -2,13 +2,14 @@
 FROM python:3.11-slim AS builder
 WORKDIR /app
 COPY requirements.txt .
+# DL3042 Fix
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # -------- RUNTIME STAGE --------
 FROM python:3.11-slim
 WORKDIR /app
 
-# Fixed DL3008 (Pinned version) & DL3015 (No-recommends)
+# DL3008 & DL3015 Fix
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl=8.14.1-2+deb13u2 && \
