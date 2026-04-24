@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  # Updated to Node 24 as per your environment preference
+  NODE_OPTIONS: "--no-deprecation"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- Python Linting ---
+      # --- Python Setup ---
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -27,20 +27,21 @@ jobs:
         run: pip install flake8
 
       - name: Lint Python
-        run: flake8 api worker
+        run: flake8 .
 
-      # --- JS Linting ---
+      # --- Node.js Setup ---
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.20.2"
+          node-version: "20"
           cache: 'npm'
-          # CRITICAL FIX: Tell GitHub where to find the lockfile to resolve the cache path
-          cache-dependency-path: '**/package-lock.json'
+          # Points specifically to the lockfile in your frontend folder
+          cache-dependency-path: 'frontend/package-lock.json'
 
-      - name: Install dependencies
-        # 'npm ci' is faster and more reliable for CI environments than 'npm install'
-        run: npm ci
+      - name: Install JS Dependencies
+        # --prefix tells npm to look inside the frontend folder
+        run: npm ci --prefix frontend
 
       - name: Lint JavaScript
-        run: npm run lint
+        # Runs the lint script defined inside frontend/package.json
+        run: npm run lint --prefix frontend --if-present
