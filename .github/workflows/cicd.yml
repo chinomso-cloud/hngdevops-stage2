@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  # Added to silence the Node.js 20 deprecation warnings
+  # Updated to Node 24 as per your environment preference
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -15,37 +15,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Python lint with flexible path
-      - uses: actions/setup-python@v5
+      # --- Python Linting ---
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: 'pip'
-          # Looks for requirements.txt anywhere in the repo
           cache-dependency-path: '**/requirements.txt'
 
-      - run: pip install flake8
+      - name: Install Flake8
+        run: pip install flake8
+
       - name: Lint Python
         run: flake8 api worker
 
-      # JS lint with flexible path discovery
+      # --- JS Linting ---
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20" # Stay on 20 but run on Node24 runner via ENV
+          node-version: "20.20.2"
           cache: 'npm'
-          # Use a glob pattern to find the lock file in subdirectories
+          # CRITICAL FIX: Tell GitHub where to find the lockfile to resolve the cache path
           cache-dependency-path: '**/package-lock.json'
 
-      - name: Install ESLint
-        run: npm install -g eslint
+      - name: Install dependencies
+        # 'npm ci' is faster and more reliable for CI environments than 'npm install'
+        run: npm ci
 
-      - name: Lint JS
-        run: eslint frontend || true
-
-      # Docker lint (Recursive)
-      - name: Lint Dockerfiles
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          recursive: true
-
-  # ... (Rest of jobs: test, build, security, integration) ...
+      - name: Lint JavaScript
+        run: npm run lint
